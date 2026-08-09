@@ -1,6 +1,5 @@
 # Asynchronous File Processing Pipeline API
 
-[![Java Version](https://shields.io)](https://java.net)
 [![Spring Boot](https://shields.io)](https://spring.io)
 [![Docker](https://shields.io)](https://docker.com)
 [![PostgreSQL](https://shields.io)](https://postgresql.org)
