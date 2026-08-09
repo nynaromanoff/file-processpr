@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  #Configuração de banco de dados
+  postgres:
+    image: postgres:16-alpine
+    container_name: postgres_main
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=file_processor_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+  # ☁️ Simulador AWS (S3 e SQS)
+  localstack:
+    image: localstack/localstack:latest
+    container_name: localstack_main
+    ports:
+      - "4566:4566"            # Porta padrão para todos os serviços AWS
+    environment:
+      - SERVICES=s3,sqs        # Ativa apenas os serviços que precisamos
+      - AWS_DEFAULT_REGION=us-east-1
+      - LOCALSTACK_AUTH_TOKEN=ls-sisAKExo-KoMa-MitO-2515-XoLU226414ba
+    volumes:
+      - "./init-aws.sh:/etc/localstack/init/ready.d/init-aws.sh" # Script de inicialização
+
+  # ⏱️ Coletor de Métricas
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus_main
+    ports:
+      - "9090:9090"
+    volumes:
+      - "./prometheus.yml:/etc/prometheus/prometheus.yml"
+
+  # 📊 Painel Visualizer
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana_main
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin # Senha inicial do painel
+    depends_on:
+      - prometheus
+    # 🧪 Executor de Testes de Carga
+  k6:
+    image: grafana/k6:latest
+    container_name: k6_runner
+    volumes:
+      - ./:/src
+    command: run /src/load-test.js
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

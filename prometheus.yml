@@ -1,0 +1,8 @@
+global:
+  scrape_interval: 5s # Coleta dados a cada 5 segundos para testes rápidos
+
+scrape_configs:
+  - job_name: 'spring-boot-app'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['192.168.15.55:8080'] # Aponta para o Spring rodando na sua máquina
